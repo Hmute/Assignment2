@@ -1,7 +1,10 @@
-import urllib.request
+import sys
 import json
 import time
 import matplotlib.pyplot as plt
+import urllib.request
+
+sys.setrecursionlimit(20000)
 
 def func1(arr, low, high):
     if low < high:
@@ -25,26 +28,33 @@ def func2(array, start, end):
     array[start], array[high] = array[high], array[start]
     return high
 
-# Fetch the test data from the URL
-url = ("https://raw.githubusercontent.com/ldklab/ensf338w23/main/assignments/assignment2/ex2.json")
-response = urllib.request.urlopen(url)
-data = json.loads(response.read().decode())
+def test_quick_sort(inputs):
+    results = []
+    for arr in inputs:
+        start = time.time()
+        func1(arr, 0, len(arr)-1)
+        end = time.time()
+        results.append(end - start)
+        print(results)
+    return results
 
-# Create a list to store the time it takes to run the function for each input
-timing_results = []
+def plot_results(results):
+    x = list(range(0, len(results)))
+    plt.plot(x, results, label="Quick Sort")
+    plt.xlabel("Input (n)")
+    plt.ylabel("Time (s)")
+    plt.title("Comparison of Quick Sort Times")
+    plt.legend()
+    plt.show()
 
-for item in data:
-    if type(item) == dict and "input" in item:
-        input_data = item["input"]
-        if type(input_data) == list:
-            start_time = time.time()
-            func1(input_data, 0, len(input_data) - 1)
-            end_time = time.time()
-            timing_results.append(end_time - start_time)
+def fetch_inputs():
+    url = ("https://raw.githubusercontent.com/ldklab/ensf338w23/main/assignments/assignment2/ex2.json")
+    response = urllib.request.urlopen(url) 
+    inputs = json.loads(response.read().decode()) 
+    return inputs
 
-# Plot the timing results
-plt.plot(timing_results)
-plt.xlabel("Test Case Number")
-plt.ylabel("Time (in seconds)")
-plt.title("Time taken to sort an array using QuickSort")
-plt.show()
+if __name__ == "__main__":
+    inputs = fetch_inputs()
+    results = test_quick_sort(inputs)
+    print(results)
+    plot_results(results)
